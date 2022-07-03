@@ -7,6 +7,7 @@ chess_player_idx = 0
 opponent_idx = 0
 max_layer = 2
 ans = [0, 0]
+steps = [[], [], []]
 
 def initial_available_attempt():
     state_map_expand = np.zeros((board_width+2, board_height+2))
@@ -58,22 +59,36 @@ def get_score(s, player_idx):
 
 def evaluate():
     def evaluate_(idx):
+        line = [[], [], [], []]
+        for step in steps[idx]:
+            if (step[0] not in line[0]):
+                line[0].append(step[0])
+            if (step[1] not in line[1]):
+                line[1].append(step[1])
+            if (step[1]-step[0] not in line[2]):
+                line[2].append(step[1]-step[0])
+            if (14-step[0]-step[1] not in line[3]):
+                line[3].append(14-step[0]-step[1])
+
         score = 0
-        for i in range(board_width):
-            line = str(state_map[i,:]).replace(',','').replace(' ','')
-            score += get_score(line, idx)
-            line = str(state_map[:, i]).replace(',','').replace(' ','')
-            score += get_score(line, idx)
+        for row in line[0]:
+            s = str(state_map[row,:]).replace(',','').replace(' ','')
+            score += get_score(s, idx)
+        for col in line[1]:
+            s = str(state_map[:, col]).replace(',','').replace(' ','')
+            score += get_score(s, idx)
+        for diag in line[2]:
+            s = str(np.diagonal(state_map, offset=diag)).replace(',','').replace(' ','')
+            score += get_score(s, idx)
 
         state_map_fliplr = np.fliplr(state_map)
-        for i in range(-14, 15):
-            line = str(np.diagonal(state_map, offset=i)).replace(',','').replace(' ','')
+        for rev_diag in line[3]:
+            s = str(np.diagonal(state_map_fliplr, offset=rev_diag)).replace(',','').replace(' ','')
             score += get_score(line, idx)
-            line = str(np.diagonal(state_map_fliplr, offset=i)).replace(',','').replace(' ','')
-            score += get_score(line, idx)
+
         return score
 
-    score = evaluate_(chess_player_idx)- evaluate_(opponent_idx)*0.1
+    score = evaluate_(chess_player_idx) - evaluate_(opponent_idx)*0.1
     return score
     """
     对整个棋盘打分
@@ -135,9 +150,11 @@ def maxmin_decision(depth, is_opponent, available_attempt, alpha, beta):
             state_map[step[0]][step[1]] = opponent_idx
             new_attempt = available_attempt.copy()
             new_attempt.remove(step)
+            steps[opponent_idx].append(step)
             get_additional_attempt(new_attempt, step[0], step[1])
             score = min(score, maxmin_decision(depth+1, False, new_attempt, alpha, beta))
             state_map[step[0]][step[1]] = 0
+            steps[opponent_idx].remove(step)
             if (score<beta):
                 beta = score
                 if (alpha>=beta):
@@ -158,9 +175,11 @@ def maxmin_decision(depth, is_opponent, available_attempt, alpha, beta):
             state_map[step[0]][step[1]] = chess_player_idx
             new_attempt = available_attempt.copy()
             new_attempt.remove(step)
+            steps[chess_player_idx].append(step)
             get_additional_attempt(new_attempt, step[0], step[1])
             tmpscore = maxmin_decision(depth+1, True, new_attempt, alpha, beta)
             state_map[step[0]][step[1]] = 0
+            steps[chess_player_idx].remove(step)
             if (tmpscore>score):
                 score = tmpscore
                 target = step
