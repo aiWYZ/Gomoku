@@ -41,9 +41,9 @@ def get_score(s, player_idx):
         return 50000
     elif ((chess_type[player_idx][2] in s) or (chess_type[player_idx][3] in s) or (chess_type[player_idx][4] in s) 
         or (chess_type[player_idx][5] in s)):
-        return 8000
+        return 10000
     elif (chess_type[player_idx][6] in s):
-        return 8000
+        return 10000
     elif ((chess_type[player_idx][7] in s) or (chess_type[player_idx][8] in s) or (chess_type[player_idx][9] in s)):
         return 1000
     elif (chess_type[player_idx][10] in s):
@@ -56,39 +56,37 @@ def get_score(s, player_idx):
     简单粗暴，帮我想想其他棋形可能长什么样
     """
 
+def get_line(line, dir, step, idx):
+    x, y = step[0]+dir[0], step[1]+dir[1]
+    while (in_bound(x, y)):
+        line.append(state_map[x][y])
+        if (state_map[x][y]!=idx):
+            break
+        x += dir[0]
+        y += dir[1]
+    x, y = step[0]-dir[0], step[1]-dir[1]
+    while (in_bound(x, y)):
+        line.insert(0, state_map[x][y])
+        if (state_map[x][y]!=idx):
+            break
+        x -= dir[0]
+        y -= dir[1]
+    return
 
 def evaluate():
     def evaluate_(idx):
-        line = [[], [], [], []]
-        for step in steps[idx]:
-            if (step[0] not in line[0]):
-                line[0].append(step[0])
-            if (step[1] not in line[1]):
-                line[1].append(step[1])
-            if (step[1]-step[0] not in line[2]):
-                line[2].append(step[1]-step[0])
-            if (14-step[0]-step[1] not in line[3]):
-                line[3].append(14-step[0]-step[1])
-
+        dire = ((1, -1), (1, 0), (0, 1), (1, 1))
         score = 0
-        for row in line[0]:
-            s = str(state_map[row,:]).replace(',','').replace(' ','')
-            score += get_score(s, idx)
-        for col in line[1]:
-            s = str(state_map[:, col]).replace(',','').replace(' ','')
-            score += get_score(s, idx)
-        for diag in line[2]:
-            s = str(np.diagonal(state_map, offset=diag)).replace(',','').replace(' ','')
-            score += get_score(s, idx)
-
-        state_map_fliplr = np.fliplr(state_map)
-        for rev_diag in line[3]:
-            s = str(np.diagonal(state_map_fliplr, offset=rev_diag)).replace(',','').replace(' ','')
-            score += get_score(line, idx)
-
+        for step in steps[idx]:
+            for dir in dire:
+                line = [state_map[step[0]][step[1]]]
+                get_line(line, dir, step, idx)
+                s = str(line).replace(',','').replace(' ','')
+                # print('idx, step, s:', idx, step, s)
+                score += get_score(s, idx)
         return score
 
-    score = evaluate_(chess_player_idx) - evaluate_(opponent_idx)*0.1
+    score = evaluate_(chess_player_idx) - evaluate_(opponent_idx)*0.8
     return score
     """
     对整个棋盘打分
