@@ -151,7 +151,7 @@ def get_steps(board, idx):
 		tmpsteps.append(steps[i][1])
 	return tmpsteps
 
-	# 此处参考https://blog.csdn.net/marble_xu/article/details/90726034
+	# 启发式搜索分类参考https://blog.csdn.net/marble_xu/article/details/90726034
 
 def minmax_search(board, idx, depth, alpha, beta):
 	if (depth==2):
