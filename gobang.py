@@ -172,14 +172,14 @@ def get_steps(board, idx):
 	# 此处参考https://blog.csdn.net/marble_xu/article/details/90726034
 
 def minmax_search(board, idx, depth, alpha, beta):
-	if (depth==2):
+	if (depth==4):
 		return evaluate(board, idx)
 	steps = get_steps(board, idx)
 	for (i,j) in steps:
 		board[i][j] = idx
 		score = minmax_search(board, 3-idx, depth+1, alpha, beta)
 		board[i][j] = 0
-		if (depth==0):
+		if (depth%2==0):
 			if (score>alpha):
 				alpha=score
 				global ans
@@ -191,7 +191,7 @@ def minmax_search(board, idx, depth, alpha, beta):
 				beta = score
 			if (alpha>=beta):
 				return beta
-	if (depth==0):
+	if (depth%2==0):
 		return alpha
 	else:
 		return beta
@@ -245,8 +245,8 @@ def gobangwin():
 def main():
     win = gobangwin()
 
-    for i in range(COLUMN+1):
-        for j in range(ROW+1):
+    for i in range(COLUMN):
+        for j in range(ROW):
             list_all.append((i, j))
 
     change = randint(0,1)
@@ -274,7 +274,7 @@ def main():
             list1.append(pos)
             list3.append(pos)
 
-            piece = Circle(Point(GRID_WIDTH * pos[0], GRID_WIDTH * pos[1]), 16)
+            piece = Circle(Point(GRID_WIDTH * pos[0], GRID_WIDTH * pos[1]), 15)
             piece.setFill('white')
             piece.draw(win)
 
@@ -294,7 +294,7 @@ def main():
                 list3.append((a2, b2))
                 print('me:', a2, b2)
 
-                piece = Circle(Point(GRID_WIDTH * a2, GRID_WIDTH * b2), 16)
+                piece = Circle(Point(GRID_WIDTH * a2, GRID_WIDTH * b2), 15)
                 piece.setFill('black')
                 piece.draw(win)
                 if game_win(list2):

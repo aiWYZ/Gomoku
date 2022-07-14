@@ -161,7 +161,7 @@ def minmax_search(board, idx, depth, alpha, beta):
 		board[i][j] = idx
 		score = minmax_search(board, 3-idx, depth+1, alpha, beta)
 		board[i][j] = 0
-		if (depth==0):
+		if (depth%2==0):
 			if (score>alpha):
 				alpha=score
 				global ans
@@ -173,7 +173,7 @@ def minmax_search(board, idx, depth, alpha, beta):
 				beta = score
 			if (alpha>=beta):
 				return beta
-	if (depth==0):
+	if (depth%2==0):
 		return alpha
 	else:
 		return beta
