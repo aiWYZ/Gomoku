@@ -55,10 +55,10 @@ def get_score(board, pos, idx):
 				break
 		
 		if (s.find('11111')!=-1):
-			score += 5000000
+			score += 500000000
 			continue
 		if (s.find('011110')!=-1):
-			score += 100000
+			score += 1000000
 			continue
 		for tp in ('011112', '211110', '10111', '11101','11011'):
 			if (s.find(tp)!=-1):
@@ -79,11 +79,7 @@ def get_score(board, pos, idx):
 			if (s.find(tp)!=-1):
 				score += 50
 				break
-		for tp in ('000112', '211000', '001012', '210100',
-					'010012', '210010', '10001'):
-			if (s.find(tp)!=-1):
-				score += 10
-				break
+
 
 	if (Chong_4+Huo_3>=2):
 		score += 100000
